@@ -1,0 +1,12 @@
+DRIFT ACADEMY LIVE / VÝSLEDKY
+
+Tento ZIP vychádza z dodaného DRIFT_ACADEMY-main (3).zip.
+Pôvodná hlavná stránka, admin, Netlify funkcie a všetky ostatné súbory zostali zachované.
+Pridané je jedno tlačidlo LIVE / VÝSLEDKY do navigácie a priečinok /live/.
+
+/live/ = výber LIVE DEMO a VÝSLEDKY
+/live/demo/ = simulácia kvalifikácie a battle každé 3 sekundy, po kliknutí reset
+/live/vysledky/ = archivované výsledky Pezinská Baba 2026
+
+Na Netlify nasaď celý priečinok DRIFT_ACADEMY-main ako jeden projekt.
+Pred nasadením zálohuj existujúcu verziu.
