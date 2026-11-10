@@ -1,0 +1,1 @@
+Nahraďte iba index.html. Ostatné existujúce backendové súbory ponechajte. Toto je čiastková verzia, nie kompletný fakturačný systém.

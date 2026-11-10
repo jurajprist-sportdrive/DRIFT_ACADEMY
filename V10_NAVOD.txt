@@ -1,0 +1,7 @@
+DRIFT ACADEMY V10 – výber zážitkov a detailné popisy
+
+Na nasadenie tejto aktualizácie stačí prepísať iba index.html v C:\drift-academy.
+Príkaz: netlify deploy --prod --skip-functions-cache
+
+Ceny 01–03 sa ďalej načítavajú z /api/config. Záloha 99 EUR je iba informačný text: existujúci formulár neobsahuje online platbu.
+Serverové funkcie a administrácia zostávajú bez zmeny.

@@ -1,0 +1,12 @@
+DRIFT ACADEMY MOBILE V9
+
+Zmenene: index.html, admin.html, vzorove-emaily.html.
+Netlify funkcie a obrazky su pribalené z posledneho balika ADMIN V8 bez zmeny.
+
+1. Pred rozbalenim zalohujte aktualny priecinok C:\drift-academy.
+2. Rozbalte ZIP do C:\drift-academy a potvrdte prepisanie iba suborov z balika.
+3. Spustite: cd /d C:\drift-academy
+4. Spustite: netlify deploy --prod --skip-functions-cache
+5. Otestujte web a admin na telefone.
+
+POZOR: Ak boli backendove funkcie po ADMIN V8 dodatocne menene, neprepisujte netlify/functions z tohto balika. V tom pripade skopirujte len index.html, admin.html a vzorove-emaily.html.
