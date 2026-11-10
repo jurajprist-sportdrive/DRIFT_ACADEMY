@@ -14,7 +14,7 @@ exports.handler=async e=>{try{
  if(typ==='Rezervácia voucheru'&&(!str(d.cislo_voucheru,100)||!/^\d{4}-\d{2}-\d{2}$/.test(str(d.platnost_voucheru,10))))return json(400,{error:'Vyplňte číslo a platnosť voucheru.'});
  if(typ==='Objednávka poukazu'&&!['reservation_99','full'].includes(d.payment_option))return json(400,{error:'Vyberte spôsob platby.'});
  const id=crypto.randomUUID();
- const rec={id,createdAt:new Date().toISOString(),typ,meno,priezvisko,email,telefon,zazitok,poznamka:str(d.poznamka,2000),gift_wish:str(d.gift_wish,400),marketing_consent:d.marketing_consent==='yes',privacy_acknowledgement:true,status:'Čakajúca',druh:'Interný',partner:'',cislo_voucheru:str(d.cislo_voucheru,100),platnost_voucheru:str(d.platnost_voucheru,10),event_id:str(d.event_id,100),event_date:str(d.event_date,10),event_time:str(d.event_time,5),event_location:str(d.event_location,250)};
+ const rec={id,history:[{at:new Date().toISOString(),actor:'Systém',action:'Objednávka vytvorená',changes:{}}],createdAt:new Date().toISOString(),typ,meno,priezvisko,email,telefon,zazitok,poznamka:str(d.poznamka,2000),gift_wish:str(d.gift_wish,400),marketing_consent:d.marketing_consent==='yes',privacy_acknowledgement:true,status:'Čakajúca',druh:'Interný',partner:'',cislo_voucheru:str(d.cislo_voucheru,100),platnost_voucheru:str(d.platnost_voucheru,10),event_id:str(d.event_id,100),event_date:str(d.event_date,10),event_time:str(d.event_time,5),event_location:str(d.event_location,250)};
  if(typ==='Objednávka poukazu'){
   rec.payment_option=d.payment_option;
   rec.total_experience_price=Number(cfg.prices[zazitok]||0);

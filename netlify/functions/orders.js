@@ -1,4 +1,6 @@
 const crypto=require('crypto');
+const audit=(rec,action,changes={})=>{rec.history=Array.isArray(rec.history)?rec.history:[];rec.history.push({at:new Date().toISOString(),actor:'Admin',action,changes});};
+const diff=(before,after)=>Object.fromEntries(Object.keys(after).filter(k=>!['history','updatedAt'].includes(k)&&JSON.stringify(before[k])!==JSON.stringify(after[k])).map(k=>[k,{from:before[k]??null,to:after[k]??null}]));
 const {store,json,authenticated}=require('./_shared');
 const statuses=['Čakajúca','Potvrdená','Zrušená','Uplatnená'];
 const partners=['Zľavomat','Najzážitky','Zľavadňa','Adrop'];
@@ -20,8 +22,8 @@ exports.handler=async e=>{try{
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)||!validDate(d.platnost_voucheru)||!statuses.includes(d.status||'Čakajúca'))return json(400,{error:'Neplatné údaje voucheru'});
   const {settings}=require('./_shared');const cfg=await settings();if(!cfg.experienceTypes.includes(d.zazitok))return json(400,{error:'Neplatný druh zážitku'});
   const id=crypto.randomUUID();const number=String(d.cislo_voucheru||'DA-'+crypto.randomBytes(5).toString('hex').toUpperCase()).trim().slice(0,120);
-  const rec={id,createdAt:new Date().toISOString(),typ:'Manuálny voucher',meno:d.meno.slice(0,120),priezvisko:d.priezvisko.slice(0,120),email:d.email.slice(0,254),telefon:d.telefon.slice(0,80),zazitok:d.zazitok.slice(0,150),cislo_voucheru:number,platnost_voucheru:d.platnost_voucheru,status:d.status||'Čakajúca',druh:'Interný',partner:'',poznamka:String(d.poznamka||'').slice(0,2000)};
-  await db.setJSON('order-'+id,rec);return json(201,normalize(rec));
+  const rec={id,history:[],createdAt:new Date().toISOString(),typ:'Manuálny voucher',meno:d.meno.slice(0,120),priezvisko:d.priezvisko.slice(0,120),email:d.email.slice(0,254),telefon:d.telefon.slice(0,80),zazitok:d.zazitok.slice(0,150),cislo_voucheru:number,platnost_voucheru:d.platnost_voucheru,status:d.status||'Čakajúca',druh:'Interný',partner:'',poznamka:String(d.poznamka||'').slice(0,2000)};
+  audit(rec,'Voucher vytvorený');await db.setJSON('order-'+id,rec);return json(201,normalize(rec));
  }
  if(!['PATCH','DELETE'].includes(e.httpMethod))return json(405,{error:'Nepodporovaná metóda'});
  const d=JSON.parse(e.body||'{}');
@@ -29,20 +31,22 @@ exports.handler=async e=>{try{
  const key='order-'+d.id, rec=await db.get(key,{type:'json'});
  if(!rec)return json(404,{error:'Objednávka neexistuje'});
  if(e.httpMethod==='DELETE'){
+  if(rec.status==='Potvrdená'||rec.status==='Uplatnená')return json(409,{error:'Potvrdený voucher sa nesmie vymazať. Najskôr upravte jeho stav.'});
   if(d.confirm!==true)return json(400,{error:'Potvrďte odstránenie'});
   await db.delete(key);return json(200,{ok:true,id:d.id});
  }
+ const before={...rec};
  if(d.meno!==undefined){if(typeof d.meno!=='string'||!d.meno.trim()||d.meno.length>120)return json(400,{error:'Neplatné meno'});rec.meno=d.meno.trim()}
  if(d.priezvisko!==undefined){if(typeof d.priezvisko!=='string'||!d.priezvisko.trim()||d.priezvisko.length>120)return json(400,{error:'Neplatné priezvisko'});rec.priezvisko=d.priezvisko.trim()}
  if(d.email!==undefined){if(typeof d.email!=='string'||d.email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email))return json(400,{error:'Neplatný e-mail'});rec.email=d.email.trim()}
  if(d.telefon!==undefined){if(typeof d.telefon!=='string'||!d.telefon.trim()||d.telefon.length>80)return json(400,{error:'Neplatný telefón'});rec.telefon=d.telefon.trim()}
  if(d.zazitok!==undefined){const {settings}=require('./_shared');const cfg=await settings();if(typeof d.zazitok!=='string'||!cfg.experienceTypes.includes(d.zazitok))return json(400,{error:'Neplatný druh zážitku'});rec.zazitok=d.zazitok}
- if(d.status!==undefined){if(!statuses.includes(d.status))return json(400,{error:'Neplatný stav'});rec.status=d.status}
+ if(d.status!==undefined){if(rec.status==='Uplatnená'&&d.status!=='Uplatnená'&&d.allowUnredeem!==true)return json(409,{error:'Uplatnenie možno zrušiť iba cez Upraviť voucher.'});if(!statuses.includes(d.status))return json(400,{error:'Neplatný stav'});rec.status=d.status}
  if(d.druh!==undefined){if(!['Interný','Externý'].includes(d.druh))return json(400,{error:'Neplatný druh'});rec.druh=d.druh;if(d.druh==='Interný')rec.partner=''}
  if(d.partner!==undefined){if(d.partner&&!partners.includes(d.partner))return json(400,{error:'Neplatný partner'});rec.partner=d.partner}
  if(d.event_date!==undefined){if(!validDate(d.event_date))return json(400,{error:'Neplatný termín'});rec.event_date=d.event_date}
  if(d.platnost_voucheru!==undefined){if(!validDate(d.platnost_voucheru))return json(400,{error:'Neplatná platnosť'});rec.platnost_voucheru=d.platnost_voucheru}
  if(d.poznamka!==undefined)rec.poznamka=String(d.poznamka).slice(0,2000);
  if(d.cislo_voucheru!==undefined)rec.cislo_voucheru=String(d.cislo_voucheru).slice(0,120);
- await db.setJSON(key,rec);return json(200,normalize(rec));
+ const changes=diff(before,rec);if(Object.keys(changes).length)audit(rec,'Úprava voucheru',changes);await db.setJSON(key,rec);return json(200,normalize(rec));
 }catch(err){console.error('orders',err);return json(500,{error:'Serverová chyba'})}};
