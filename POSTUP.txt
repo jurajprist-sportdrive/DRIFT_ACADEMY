@@ -1,0 +1,9 @@
+DRIFT ACADEMY – konfiguracia Netlify
+
+1. Nahraj package.json a netlify.toml do korena GitHub repozitara (vedla index.html).
+2. Nerus existujuce subory ani ulozisko Netlify Blobs.
+3. Netlify > Deploys > Trigger deploy > Deploy project without cache.
+4. Skontroluj, ze novy deploy bol vytvoreny z GitHub commitu, nie 'Add files via upload'.
+5. Otestuj /admin. Ak sa opakuje BlobsInternalError 401, treba skontrolovat autorizaciu Blobs a prostredie konkretneho deployu. Tato konfiguracia sama osebe negarantuje opravu 401.
+
+Obsahuje iba konfiguracne subory, nie zdrojove data ani hesla.
