@@ -1,6 +1,6 @@
 const crypto=require('crypto');
 const {getStore}=require('@netlify/blobs');
-const defaults={emailTemplates:{},experienceTypes:['DRIFT BASIC','DRIFT SEMI-PRO','DRIFT PRO'],notificationEmail:'juraj.prist@gmail.com',prices:{'DRIFT BASIC':259,'DRIFT SEMI-PRO':449,'DRIFT PRO':599}};
+const defaults={emailTemplates:{},experienceTypes:['DRIFT BASIC','DRIFT SEMI-PRO','DRIFT PRO'],notificationEmail:process.env.NOTIFICATION_EMAIL || '',prices:{'DRIFT BASIC':259,'DRIFT SEMI-PRO':449,'DRIFT PRO':599}};
 // Netlify builds normally inject the Blobs connection automatically.
 // For manual/legacy deploys, explicit site credentials are supported.
 const store=()=>{
