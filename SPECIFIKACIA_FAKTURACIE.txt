@@ -6,7 +6,7 @@ Po platbe PDF voucher A5 na šírku, platnosť 12 mesiacov.
 ZF: Z-YYYY-MM-DD-NNN, zrušenie neuhradenej ZF: X-Z-... (iba interný e-mail).
 FA: FA-YYYY-2001 a vyššie, nový rok opäť 2001.
 Dobropis D-YYYY-001, viazaný na uhradenú FA.
-Kópie dokumentov: info@drift-academy.sk, konfigurovateľné.
+Kópie dokumentov: e-mailová adresa nastavená v administrácii.
 Zákazník dostane po platbe faktúru a voucher.
 Admin: Uhradená/Neuhradená, Zrušená ZF, Storno voucheru, Stiahnuť voucher, Poslať voucher.
 Voucher: unikátne číslo, jediná registrácia, atomická blokácia pri uplatnení.
